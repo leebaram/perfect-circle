@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <!-- 노치·다이내믹 아일랜드 및 하단 홈 바 안전 영역 대응을 위한 viewport-fit=cover 적용 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Android & iOS 네이티브 웹앱(Standalone) 메타 태그 -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="완벽한 원">
+    <meta name="application-name" content="완벽한 원">
+    <meta name="format-detection" content="telephone=no">
+    <meta id="themeColorMeta" name="theme-color" content="#080C14">
+    <meta name="description" content="손가락으로 완벽한 원을 그리고 몇 % 일치하는지 겨루는 모바일 챌린지 웹앱">
+
+    <title>완벽한 원 그리기 챌린지 - Perfect Circle</title>
+
+    <!-- PWA Web App Manifest & 깔끔한 SVG 앱 아이콘 (배포 파일 및 단일 파일 환경 모두 자동 대응) -->
+    <link id="manifestLink" rel="manifest" href="./manifest.json">
+    <link id="faviconSvgLink" rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230F172A%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23080C14%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22ring%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2334D399%22%2F%3E%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2310B981%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2306B6D4%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22116%22%20fill%3D%22url(%23bg)%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22156%22%20fill%3D%22none%22%20stroke%3D%22%2310B981%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%2244%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22156%22%20fill%3D%22none%22%20stroke%3D%22url(%23ring)%22%20stroke-width%3D%2232%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%22146%22%20r%3D%2218%22%20fill%3D%22%23FBBF24%22%2F%3E%3C%2Fsvg%3E">
+    <link id="appleTouchIconLink" rel="apple-touch-icon" sizes="180x180" href="./icon.svg">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <!-- Google Fonts Inter & Pretendard CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+
+    <style>
+        /* 기기 노치(Safe-Area) 환경 변수 기본값 정의 */
+        :root {
+            --sat: env(safe-area-inset-top, 0px);
+            --sar: env(safe-area-inset-right, 0px);
+            --sab: env(safe-area-inset-bottom, 0px);
+            --sal: env(safe-area-inset-left, 0px);
+        }
+
+        /* 모바일 브라우저 바운스, 길게 누르기 메뉴 및 드로잉 중 화면 흔들림 방지 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            min-height: -webkit-fill-available;
+            overflow: hidden;
+            overscroll-behavior: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 입력창은 모바일 키보드 포커스 및 텍스트 선택 허용 */
+        input {
+            user-select: text;
+            -webkit-user-select: text;
+            touch-action: manipulation;
+        }
+
+        /* 모달 내부 리스트 세로 스크롤 허용 */
+        .modal-scroll {
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 상단·하단·모달 안전 영역(Safe-Area) 패딩 유틸리티 */
+        .inapp-banner-safe {
+            padding-top: calc(var(--sat) + 0.5rem);
+            padding-left: calc(var(--sal) + 0.75rem);
+            padding-right: calc(var(--sar) + 0.75rem);
+            padding-bottom: 0.5rem;
+        }
+
+        .header-safe {
+            padding-top: calc(var(--sat) + 0.65rem);
+            padding-left: calc(var(--sal) + 0.85rem);
+            padding-right: calc(var(--sar) + 0.85rem);
+        }
+
+        /* 상단 인앱 배너가 열려 있을 때는 헤더 중복 상단 safe-area 제거 */
+        .has-inapp-banner .header-safe {
+            padding-top: 0.5rem;
+        }
+
+        .footer-safe {
+            padding-bottom: calc(var(--sab) + 0.85rem);
+            padding-left: calc(var(--sal) + 1rem);
+            padding-right: calc(var(--sar) + 1rem);
+        }
+
+        .modal-sheet-safe {
+            padding-bottom: calc(var(--sab) + 1.25rem);
+        }
+
+        @media (min-width: 640px) {
+            .modal-sheet-safe {
+                padding-bottom: 1.25rem;
+            }
+        }
+
+        .toast-safe {
+            top: calc(var(--sat) + 5.75rem);
+        }
+
+        /* 세로 높이가 낮은 스마트폰(iPhone SE, 인앱 주소창 노출 상태 등) 화면 비율 최적화 */
+        @media (max-height: 680px) {
+            .score-number-responsive {
+                font-size: 2.5rem !important;
+                line-height: 1.05 !important;
+            }
+            .score-percent-responsive {
+                font-size: 1.35rem !important;
+            }
+            .compact-gap {
+                gap: 0.35rem !important;
+            }
+        }
+
+        /* 숫자 변화 시 좌우 흔들림 방지를 위한 고정폭 숫자 */
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        /* 드로잉 캔버스 전체 화면 배치 */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* 무지 배경 (가이드 도트 및 중앙 표시 없음) */
+        .bg-surface-dark {
+            background-color: #080C14;
+        }
+
+        .bg-surface-light {
+            background-color: #F8FAFC;
+        }
+
+        /* 점수 달성 팝 애니메이션 */
+        @keyframes scorePop {
+            0% { transform: scale(0.92); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-score-pop {
+            animation: scorePop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 신기록 배지 글로우 애니메이션 */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.88; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+
+        .animate-pulse-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        /* 버튼 터치 피드백 */
+        .game-btn {
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .game-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body id="appBody" class="bg-surface-dark text-slate-100 font-sans relative select-none transition-colors duration-300">
+
+    <!-- 배경 은은한 오로라 조명 효과 (점수 색상에 맞춰 변화, 가이드선 아님) -->
+    <div id="ambientGlow" class="pointer-events-none fixed inset-0 transition-opacity duration-500 opacity-35"
+         style="background: radial-gradient(circle at 50% 52%, rgba(16, 185, 129, 0.22), transparent 62%);">
+    </div>
+
+    <!-- 메인 드로잉 캔버스 (가이드 선 및 원의 중심점 표시 없음) -->
+    <canvas id="drawCanvas" class="fixed inset-0 z-10 cursor-crosshair"></canvas>
+
+    <!-- 상단 통합 스택 컨테이너: [카카오톡 등 인앱 브라우저 안내 배너] + [상단 HUD] -->
+    <div id="topStackContainer" class="fixed top-0 left-0 right-0 z-30 pointer-events-none flex flex-col">
+
+        <!-- 카카오톡·인스타그램·네이버 등 인앱 브라우저 감지 시 노출되는 상단 안내 배너 -->
+        <div id="inAppBrowserBanner" class="hidden pointer-events-auto inapp-banner-safe bg-gradient-to-r from-amber-500/95 via-orange-500/95 to-amber-500/95 text-slate-950 shadow-lg border-b border-amber-300/50 backdrop-blur-md">
+            <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-6 h-6 rounded-full bg-slate-950/15 flex items-center justify-center shrink-0 text-xs font-black">!</span>
+                    <div class="min-w-0 leading-tight">
+                        <p id="inAppBannerTitle" class="text-[11px] sm:text-xs font-black truncate">
+                            인앱 브라우저로 접속하셨네요!
+                        </p>
+                        <p id="inAppBannerDesc" class="text-[10px] font-bold text-slate-900/85 truncate">
+                            원활한 터치와 앱 설치를 위해 크롬·사파리로 열어주세요
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button id="openExternalBrowserBtn" type="button"
+                            class="game-btn px-2.5 py-1.5 rounded-xl bg-slate-950 text-amber-300 text-[11px] font-extrabold shadow-sm whitespace-nowrap">
+                        크롬·사파리 열기
+                    </button>
+                    <button id="closeInAppBannerBtn" type="button" aria-label="배너 닫기"
+                            class="game-btn p-1.5 rounded-lg hover:bg-slate-950/10 text-slate-900">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상단 HUD 컨테이너 -->
+        <header class="header-safe w-full">
+            <div class="max-w-md mx-auto flex flex-col gap-1.5 compact-gap">
+                
+                <!-- 상단 컨트롤 바: 좌측 앱 아이콘 & 참가자 정보 / 우측 앱설치·랭킹·관리자·설정 -->
+                <div class="flex items-center justify-between gap-1.5">
+                    <!-- 참가자 계정 & 남은 기회(5회) 배지 버튼 -->
+                    <button id="userAccountBtn" type="button"
+                            class="pointer-events-auto game-btn flex items-center gap-2 px-2.5 py-1.5 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-100 shadow-md max-w-[50%] min-w-0">
+                        <!-- 전용 SVG 앱 아이콘 엠블럼 -->
+                        <svg class="w-6 h-6 shrink-0" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                            <rect width="64" height="64" rx="16" fill="#0F172A"/>
+                            <circle cx="32" cy="32" r="19" stroke="#10B981" stroke-opacity="0.2" stroke-width="6"/>
+                            <circle cx="32" cy="32" r="19" stroke="url(#hudIconGrad)" stroke-width="4.5" stroke-linecap="round"/>
+                            <circle cx="45.5" cy="18.5" r="2.6" fill="#FBBF24"/>
+                            <defs>
+                                <linearGradient id="hudIconGrad" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34D399"/>
+                                    <stop offset="0.5" stop-color="#10B981"/>
+                                    <stop offset="1" stop-color="#06B6D4"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="flex flex-col items-start overflow-hidden min-w-0">
+                            <div class="flex items-center gap-1 max-w-full">
+                                <span id="userStatusDot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
+                                <span id="headerUserId" class="text-xs font-extrabold tracking-tight truncate">아이디 접속</span>
+                            </div>
+                            <div id="attemptDotsRow" class="flex items-center gap-1 mt-0.5">
+                                <span class="text-[10px] text-slate-400 font-semibold truncate">접속 후 도전</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- 우측 유틸 버튼 모음 (PWA 앱 설치, 실시간 랭킹, 관리자, 사운드, 테마) -->
+                    <div class="pointer-events-auto flex items-center gap-1 shrink-0">
+                        <!-- 네이티브 앱 설치(PWA) 버튼: 이미 홈 화면 앱으로 실행 중일 땐 자동 숨김 -->
+                        <button id="pwaInstallBtn" type="button" aria-label="홈 화면에 앱 설치"
+                                class="game-btn px-2.5 py-2 rounded-2xl bg-emerald-500/20 backdrop-blur-md border border-emerald-400/50 text-emerald-300 hover:bg-emerald-500/30 shadow-md flex items-center gap-1 text-[11px] font-extrabold">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
+                            </svg>
+                            <span class="hidden xs:inline sm:inline">앱설치</span>
+                        </button>
+
+                        <!-- 실시간 랭킹 & 기록 보기 버튼 -->
+                        <button id="leaderboardBtn" type="button" aria-label="실시간 랭킹 보기"
+                                class="game-btn px-2.5 py-2 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-200 hover:text-white shadow-md flex items-center gap-1 text-xs font-bold">
+                            <svg class="w-4 h-4 text-amber-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span id="bestBadgeText" class="tabular-nums">랭킹</span>
+                        </button>
+
+                        <!-- 관리자 리셋 버튼 -->
+                        <button id="adminBtn" type="button" aria-label="관리자 설정"
+                                class="game-btn p-2 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-300 hover:text-emerald-400 shadow-md">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </button>
+
+                        <!-- 효과음 켜기/끄기 버튼 -->
+                        <button id="soundToggleBtn" type="button" aria-label="효과음 켜기/끄기"
+                                class="game-btn p-2 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-300 hover:text-white shadow-md">
+                            <svg id="soundOnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                            </svg>
+                            <svg id="soundOffIcon" class="w-4 h-4 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                            </svg>
+                        </button>
+
+                        <!-- 라이트/다크 테마 전환 버튼 -->
+                        <button id="themeToggleBtn" type="button" aria-label="테마 변경"
+                                class="game-btn p-2 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-300 hover:text-white shadow-md">
+                            <svg id="moonIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                            </svg>
+                            <svg id="sunIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 중앙 대형 퍼센트(%) 스코어 스테이지 -->
+                <div class="flex flex-col items-center justify-center pt-0.5 text-center">
+                    <!-- 상태 배지 (신기록 / 기회 소진 안내) -->
+                    <div id="newBestBadge" class="hidden mb-1 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[11px] font-extrabold tracking-wide shadow-lg animate-pulse-glow">
+                        🎉 개인 최고 기록 경신!
+                    </div>
+                    <div id="limitReachedBadge" class="hidden mb-1 px-3 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/50 text-rose-300 text-[11px] font-extrabold tracking-wide">
+                        🔒 5회 기회 모두 사용됨 (관리자 리셋 대기)
+                    </div>
+
+                    <!-- 대형 일치율(%) 숫자 표시 -->
+                    <div id="scoreDisplayWrap" class="flex items-baseline justify-center">
+                        <span id="scoreMainNumber" class="score-number-responsive tabular-nums text-5xl sm:text-6xl font-black tracking-tight text-emerald-400 drop-shadow-sm transition-colors duration-200">
+                            --.-
+                        </span>
+                        <span id="scorePercentSign" class="score-percent-responsive text-2xl sm:text-3xl font-extrabold ml-1 text-emerald-400/90 transition-colors duration-200">
+                            %
+                        </span>
+                    </div>
+
+                    <!-- 안내 문구 및 등급 피드백 -->
+                    <p id="statusMessage" class="mt-0.5 text-xs sm:text-sm font-semibold text-slate-300 px-3.5 py-1 rounded-full bg-slate-900/65 backdrop-blur-sm border border-slate-800/70 max-w-[92vw] truncate">
+                        아이디로 접속한 뒤 원을 그려보세요!
+                    </p>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- 하단 컨트롤 및 세부 지표 HUD (하단 홈 인디케이터 safe-area 적용) -->
+    <footer class="fixed bottom-0 left-0 right-0 z-20 pointer-events-none footer-safe">
+        <div class="max-w-md mx-auto flex flex-col gap-2 compact-gap">
+            
+            <!-- 세부 분석 지표 (원 완성 시 표시) -->
+            <div id="metricsBar" class="opacity-0 translate-y-2 transition-all duration-300 grid grid-cols-3 gap-2 p-2 rounded-2xl bg-slate-900/85 backdrop-blur-md border border-slate-700/60 shadow-lg">
+                <div class="flex flex-col items-center py-1 rounded-xl bg-slate-800/60">
+                    <span class="text-[10px] font-medium text-slate-400">반지름 균일도</span>
+                    <span id="metricRadial" class="tabular-nums text-xs sm:text-sm font-bold text

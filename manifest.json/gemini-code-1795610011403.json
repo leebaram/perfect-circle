@@ -1,0 +1,28 @@
+{
+  "id": "./?source=pwa",
+  "name": "완벽한 원 그리기 챌린지",
+  "short_name": "완벽한 원",
+  "description": "손가락으로 완벽한 원을 그리고 몇 % 일치하는지 겨루는 모바일 챌린지 웹앱",
+  "lang": "ko-KR",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080C14",
+  "theme_color": "#080C14",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
